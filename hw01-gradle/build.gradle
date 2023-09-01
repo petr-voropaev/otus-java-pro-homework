@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+group = 'ru.otus.java.pro'
+version = '1.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:32.1.2-jre'
+}
+
+shadowJar {
+    archiveBaseName.set('gradleHelloOtus')
+    archiveVersion.set('1.0.1')
+    archiveClassifier.set('')
+    manifest {
+        attributes 'Main-Class': 'ru.otus.java.pro.hw01.gradle.HelloOtus'
+    }
+}
+
+tasks.build.dependsOn tasks.shadowJar
