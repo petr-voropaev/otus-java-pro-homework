@@ -9,14 +9,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.bank.dao.AccountDao;
 import ru.otus.bank.entity.Account;
+import ru.otus.bank.entity.Agreement;
 import ru.otus.bank.service.exception.AccountException;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,4 +88,76 @@ public class AccountServiceImplTest {
         verify(accountDao).save(argThat(sourceMatcher));
         verify(accountDao).save(argThat(destinationMatcher));
         }
+
+    @Test
+    public void testAddAccount() {
+        Agreement agreement = newAgreement();
+        Account expected = newAccount();
+        when(accountDao.save(any(Account.class))).thenReturn(expected);
+
+        Account actual = accountServiceImpl.addAccount(agreement, "number", 1, BigDecimal.ONE);
+
+        verify(accountDao).save(any(Account.class));
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetAccounts() {
+        Account account = newAccount();
+        when(accountDao.findAll()).thenReturn(Collections.singletonList(account));
+
+        List<Account> actual = accountServiceImpl.getAccounts();
+
+        List<Account> expected = Collections.singletonList(account);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetAccounts_agreement() {
+        Agreement agreement = newAgreement();
+        Account account = newAccount();
+        when(accountDao.findByAgreementId(agreement.getId())).thenReturn(Collections.singletonList(account));
+
+        List<Account> actual = accountServiceImpl.getAccounts(agreement);
+
+        List<Account> expected = Collections.singletonList(account);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testCharge() {
+        Account account = newAccount();
+        when(accountDao.findById(eq(1L))).thenReturn(Optional.of(account));
+        when(accountDao.save(any(Account.class))).thenReturn(account);
+
+        boolean actual = accountServiceImpl.charge(1L, BigDecimal.ONE);
+
+        verify(accountDao).save(any(Account.class));
+        assertTrue(actual);
+    }
+
+    @Test
+    public void testCharge_exception() {
+        when(accountDao.findById(eq(1L))).thenReturn(Optional.empty());
+
+        AccountException exception = assertThrows(AccountException.class, () -> accountServiceImpl.charge(1L, BigDecimal.ONE));
+        assertEquals("No source account", exception.getMessage());
+        verify(accountDao, never()).save(any(Account.class));
+    }
+
+    private static Account newAccount() {
+        Account account = new Account();
+        account.setAmount(BigDecimal.ONE);
+        account.setId(1L);
+        account.setAgreementId(1L);
+        account.setType(1);
+        account.setNumber("number");
+        return account;
+    }
+
+    private static Agreement newAgreement() {
+        Agreement agreement = new Agreement();
+        agreement.setId(1L);
+        return agreement;
+    }
 }
