@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,13 +63,14 @@ public class PaymentProcessorImplTest {
             }
         }))).thenReturn(List.of(destinationAccount));
 
-        paymentProcessor.makeTransfer(sourceAgreement, destinationAgreement,
+        boolean actual = paymentProcessor.makeTransfer(sourceAgreement, destinationAgreement,
                 0, 0, BigDecimal.ONE);
 
+        assertFalse(actual);
     }
 
     @Test
-    public void testMakeTransferWithComission() {
+    void testMakeTransferWithComission() {
         Agreement sourceAgreement = new Agreement();
         sourceAgreement.setId(1L);
 
@@ -87,13 +89,14 @@ public class PaymentProcessorImplTest {
         when(accountService.getAccounts(argThat(argument -> argument != null && argument.getId() == 2L))).thenReturn(List.of(destinationAccount));
         when(accountService.charge(eq(sourceAccount.getId()), any(BigDecimal.class))).thenReturn(true);
 
-        paymentProcessor.makeTransferWithComission(sourceAgreement, destinationAgreement, 0, 0, BigDecimal.ONE, BigDecimal.ONE);
+        boolean actual = paymentProcessor.makeTransferWithComission(sourceAgreement, destinationAgreement, 0, 0, BigDecimal.ONE, BigDecimal.ONE);
 
         verify(accountService).makeTransfer(eq(sourceAccount.getId()), eq(destinationAccount.getId()), any(BigDecimal.class));
+        assertFalse(actual);
     }
 
     @Test
-    public void testMakeTransferWithComission_exception() {
+    void testMakeTransferWithComission_exception() {
         Agreement sourceAgreement = new Agreement();
         sourceAgreement.setId(1L);
 

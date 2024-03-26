@@ -62,7 +62,7 @@ public class AgreementServiceImplTest {
     }
 
     @Test
-    public void testAddAgreement() {
+    void testAddAgreement() {
         Agreement expected = newAgreement();
         when(dao.save(any(Agreement.class))).thenReturn(expected);
 

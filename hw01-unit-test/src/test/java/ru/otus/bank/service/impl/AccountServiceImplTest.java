@@ -90,7 +90,7 @@ public class AccountServiceImplTest {
         }
 
     @Test
-    public void testAddAccount() {
+    void testAddAccount() {
         Agreement agreement = newAgreement();
         Account expected = newAccount();
         when(accountDao.save(any(Account.class))).thenReturn(expected);
@@ -102,7 +102,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testGetAccounts() {
+    void testGetAccounts() {
         Account account = newAccount();
         when(accountDao.findAll()).thenReturn(Collections.singletonList(account));
 
@@ -113,7 +113,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testGetAccounts_agreement() {
+    void testGetAccounts_agreement() {
         Agreement agreement = newAgreement();
         Account account = newAccount();
         when(accountDao.findByAgreementId(agreement.getId())).thenReturn(Collections.singletonList(account));
@@ -125,7 +125,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testCharge() {
+    void testCharge() {
         Account account = newAccount();
         when(accountDao.findById(eq(1L))).thenReturn(Optional.of(account));
         when(accountDao.save(any(Account.class))).thenReturn(account);
@@ -137,7 +137,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void testCharge_exception() {
+    void testCharge_exception() {
         when(accountDao.findById(eq(1L))).thenReturn(Optional.empty());
 
         AccountException exception = assertThrows(AccountException.class, () -> accountServiceImpl.charge(1L, BigDecimal.ONE));
