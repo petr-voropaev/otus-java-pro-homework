@@ -1,3 +1,4 @@
 rootProject.name = 'otus-java-pro-homework'
 include 'hw01-unit-test'
+include 'hw03-stream-api'
 
