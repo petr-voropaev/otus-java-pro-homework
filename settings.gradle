@@ -1,3 +1,24 @@
+pluginManagement {
+    def jgitver = settings.jgitver
+    def dependencyManagement = settings.dependencyManagement
+    def springframeworkBoot = settings.springframeworkBoot
+    def johnrengelmanShadow = settings.johnrengelmanShadow
+    def jib = settings.jib
+    def protobufVer = settings.protobufVer
+    def sonarlint = settings.sonarlint
+    def spotless = settings.spotless
+
+    plugins {
+        id("fr.brouillard.oss.gradle.jgitver") version jgitver
+        id("io.spring.dependency-management") version dependencyManagement
+        id("org.springframework.boot") version springframeworkBoot
+        id("com.github.johnrengelman.shadow") version johnrengelmanShadow
+        id("com.google.cloud.tools.jib") version jib
+        id("com.google.protobuf") version protobufVer
+        id("name.remal.sonarlint") version sonarlint
+        id("com.diffplug.spotless") version spotless
+    }
+}
+
 rootProject.name = 'otus-java-pro-homework'
 include 'hw01-gradle'
-
