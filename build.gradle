@@ -1,0 +1,125 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import name.remal.gradle_plugins.sonarlint.SonarLintPlugin
+import com.diffplug.gradle.spotless.SpotlessPlugin
+import fr.brouillard.oss.gradle.plugins.JGitverPlugin
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+
+plugins {
+    id 'idea'
+    id 'fr.brouillard.oss.gradle.jgitver'
+    id 'io.spring.dependency-management'
+    id 'org.springframework.boot' apply false
+    id 'name.remal.sonarlint' apply false
+    id 'com.diffplug.spotless' apply false
+}
+
+
+idea {
+    project {
+        languageLevel = new IdeaLanguageLevel(21)
+    }
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+allprojects {
+    group = 'ru.otus'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    def testcontainersBom = project.testcontainersBom
+    def protobufBom = project.protobufBom
+    def guava = project.guava
+
+    apply plugin: 'io.spring.dependency-management'
+    dependencyManagement {
+        dependencies {
+            imports {
+                mavenBom SpringBootPlugin.BOM_COORDINATES
+                mavenBom "org.testcontainers:testcontainers-bom:$testcontainersBom"
+                mavenBom "com.google.protobuf:protobuf-bom:$protobufBom"
+            }
+            dependency "com.google.guava:guava:$guava"
+        }
+    }
+
+    configurations.configureEach {
+        resolutionStrategy {
+            failOnVersionConflict()
+
+            force 'javax.servlet:servlet-api:2.5'
+            force 'commons-logging:commons-logging:1.1.1'
+            force 'commons-lang:commons-lang:2.5'
+            force 'org.codehaus.jackson:jackson-core-asl:1.8.8'
+            force 'org.codehaus.jackson:jackson-mapper-asl:1.8.8'
+            force 'commons-io:commons-io:2.16.1'
+            force 'org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r'
+            force 'org.apache.commons:commons-compress:1.26.1'
+            force 'com.google.errorprone:error_prone_annotations:2.36.0'
+            force 'org.jetbrains:annotations:19.0.0'
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs.addAll(['-Xlint:all,-serial,-processing'])
+
+        dependsOn 'spotlessApply'
+    }
+    apply plugin: SonarLintPlugin
+    sonarLint {
+        nodeJs {
+            detectNodeJs = false
+            logNodeJsNotFound = false
+        }
+    }
+    apply plugin: SpotlessPlugin
+    spotless {
+        java {
+            palantirJavaFormat '2.39.0'
+        }
+    }
+
+    apply plugin: JGitverPlugin
+    jgitver {
+        strategy 'PATTERN'
+        nonQualifierBranches 'main,master'
+        tagVersionPattern "\${v}\${<meta.DIRTY_TEXT}"
+        versionPattern "\${v}\${<meta.COMMIT_DISTANCE}\${<meta.GIT_SHA1_8}\${<meta.QUALIFIED_BRANCH_NAME}\${<meta.DIRTY_TEXT}-SNAPSHOT"
+    }
+
+    tasks.withType(Test).tap {
+        configureEach {
+            useJUnitPlatform()
+            testLogging.showExceptions = true
+            reports {
+                junitXml.required.set(true)
+                html.required.set(true)
+            }
+        }
+    }
+}
+
+tasks.register('managedVersions') {
+    doLast {
+        project.extensions.getByType(DependencyManagementExtension)
+                .managedVersions
+                .toSorted()
+                .collect { "${it.key}:${it.value}" }
+                .each { println it }
+    }
+}
