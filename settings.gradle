@@ -23,3 +23,5 @@ pluginManagement {
 rootProject.name = 'otus-java-pro-homework'
 include 'hw01-gradle'
 include 'hw02-generics'
+include 'hw04-gc:demo'
+include 'hw04-gc:homework'
