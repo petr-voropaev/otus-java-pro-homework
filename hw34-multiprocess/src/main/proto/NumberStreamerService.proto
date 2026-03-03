@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package ru.otus;
+
+option java_multiple_files = true;
+option java_package = "ru.otus.service";
+
+service NumberStreamerService {
+    rpc getNumberSequence(NumberSequenceRequest) returns (stream NumberResponse);
+}
+
+message NumberSequenceRequest {
+    int32 firstValue = 1;
+    int32 lastValue = 2;
+}
+
+message NumberResponse {
+    int32 value = 1;
+}
+
