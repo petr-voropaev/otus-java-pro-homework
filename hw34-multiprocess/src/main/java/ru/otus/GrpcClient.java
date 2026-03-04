@@ -3,6 +3,8 @@ package ru.otus;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.service.NumberResponse;
@@ -19,8 +21,8 @@ public class GrpcClient {
     private final NumberStreamerServiceGrpc.NumberStreamerServiceStub asyncStub;
 
     private int currentValue = 0;
-    private int serverValueLast = 0;
-    private boolean serverValueUsed = false;
+    private final AtomicInteger serverValueLast = new AtomicInteger(0);
+    private final AtomicBoolean serverValueUsed = new AtomicBoolean(false);
 
     public static void main(String[] args) throws InterruptedException {
         GrpcClient client = new GrpcClient(SERVER_HOST, SERVER_PORT);
@@ -54,8 +56,8 @@ public class GrpcClient {
             @Override
             public void onNext(NumberResponse response) {
                 logger.info("serverValue: {}", response.getValue());
-                serverValueLast = response.getValue();
-                serverValueUsed = false;
+                serverValueLast.set(response.getValue());
+                serverValueUsed.set(false);
             }
 
             @Override
@@ -73,11 +75,11 @@ public class GrpcClient {
     public void updateCurrentValue() throws InterruptedException {
         for (int i = 0; i <= 50; i++) {
 
-            if (serverValueUsed) {
+            if (serverValueUsed.get()) {
                 currentValue = currentValue + 1;
             } else {
-                currentValue = currentValue + serverValueLast + 1;
-                serverValueUsed = true;
+                currentValue = currentValue + serverValueLast.get() + 1;
+                serverValueUsed.set(true);
             }
 
             logger.info("currentValue: {}", currentValue);
