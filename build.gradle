@@ -81,12 +81,6 @@ subprojects {
         dependsOn 'spotlessApply'
     }
     apply plugin: SonarLintPlugin
-    sonarLint {
-        nodeJs {
-            detectNodeJs = false
-            logNodeJsNotFound = false
-        }
-    }
     apply plugin: SpotlessPlugin
     spotless {
         java {
