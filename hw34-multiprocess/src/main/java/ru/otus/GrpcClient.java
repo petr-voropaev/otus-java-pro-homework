@@ -78,7 +78,7 @@ public class GrpcClient {
             if (serverValueUsed.get()) {
                 currentValue = currentValue + 1;
             } else {
-                currentValue = currentValue + serverValueLast.get() + 1;
+                currentValue = currentValue + serverValueLast.getAndSet(0);
                 serverValueUsed.set(true);
             }
 
