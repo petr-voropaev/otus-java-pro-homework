@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.annotation.Log;
@@ -14,7 +15,8 @@ public class IocLogging {
 
     private static final Logger logger = LoggerFactory.getLogger(IocLogging.class);
 
-    private IocLogging() {}
+    private IocLogging() {
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> T createProxy(T target) {
@@ -26,25 +28,26 @@ public class IocLogging {
 
     private static class LoggingInvocationHandler implements InvocationHandler {
         private final Object target;
-        private final Set<Method> contextMethod = new HashSet<>();
+        private final Set<String> contextMethodSignature = new HashSet<>();
 
         public LoggingInvocationHandler(Object target) {
             this.target = target;
+            Arrays.stream(target.getClass().getMethods())
+                    .filter(method -> method.isAnnotationPresent(Log.class))
+                    .forEach(method -> contextMethodSignature.add(getSignature(method)));
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (contextMethod.contains(method)) {
+            if (contextMethodSignature.contains(getSignature(method))) {
                 logger.info("executed method: {}, param(s): {}", method.getName(), Arrays.toString(args));
-            } else {
-                Method targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
-                if (targetMethod.isAnnotationPresent(Log.class)) {
-                    contextMethod.add(method);
-                    logger.info("executed method: {}, param(s): {}", method.getName(), Arrays.toString(args));
-                }
             }
 
             return method.invoke(target, args);
+        }
+
+        private String getSignature(Method method) {
+            return method.getName() + Arrays.toString(method.getParameterTypes());
         }
     }
 }
