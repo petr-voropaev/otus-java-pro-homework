@@ -36,15 +36,29 @@ public class TestRunner {
     private TestResult executeTest(
             Class<?> testClass, List<Method> beforeMethods, List<Method> afterMethods, Method testMethod) {
         String testName = testMethod.getName();
+        Object testInstance = createTestInstance(testClass);
 
         try {
-            Object testInstance = testClass.getDeclaredConstructor().newInstance();
             ReflectionHelper.executeMethods(testInstance, beforeMethods);
             ReflectionHelper.executeMethods(testInstance, Collections.singletonList(testMethod));
             ReflectionHelper.executeMethods(testInstance, afterMethods);
+
             return new TestResult(testName, true, null);
         } catch (Exception e) {
+            try {
+                ReflectionHelper.executeMethods(testInstance, afterMethods);
+            } catch (Exception ignored) {
+            }
+
             return new TestResult(testName, false, e);
+        }
+    }
+
+    private Object createTestInstance(Class<?> testClass) {
+        try {
+            return testClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create test instance " + testClass, e);
         }
     }
 
