@@ -9,6 +9,10 @@ public class Main {
 
     public static void main(String[] args) {
         ATM atm = ATMFactory.createWithBanknote();
+        atm.deposit(new RubleBanknote(5000), 10);
+        atm.deposit(new RubleBanknote(1000), 20);
+        atm.deposit(new RubleBanknote(500), 30);
+        atm.deposit(new RubleBanknote(100), 50);
         System.out.println("Изначальный баланс: " + atm.getBalance());
 
         System.out.println("Снятие: 7800 руб");

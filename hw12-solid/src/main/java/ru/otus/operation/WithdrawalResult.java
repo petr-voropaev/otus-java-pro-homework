@@ -1,5 +1,6 @@
 package ru.otus.operation;
 
+import java.util.Collections;
 import java.util.Map;
 import ru.otus.banknote.Banknote;
 
@@ -22,7 +23,7 @@ public class WithdrawalResult {
     }
 
     public Map<Banknote, Integer> getBanknotes() {
-        return banknotes;
+        return Collections.unmodifiableMap(banknotes);
     }
 
     public String getErrorMessage() {
