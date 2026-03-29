@@ -3,6 +3,7 @@ package ru.otus.jdbc.mapper;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import ru.otus.annotation.Id;
 
@@ -15,7 +16,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     public EntityClassMetaDataImpl(Class<T> entityClass) {
         this.entityClass = entityClass;
-        this.allFields = new ArrayList<>(List.of(entityClass.getDeclaredFields()));
+        this.allFields = List.of(entityClass.getDeclaredFields());
         this.idField = findIdField();
         this.fieldsWithoutId = findFieldsWithoutId();
     }
@@ -61,6 +62,6 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
             }
         }
 
-        return result;
+        return Collections.unmodifiableList(result);
     }
 }

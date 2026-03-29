@@ -78,23 +78,24 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
     @Override
     public void update(Connection connection, T object) {
-        List<Object> values = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
 
         for (Field field : entityClassMetaData.getFieldsWithoutId()) {
+            field.setAccessible(true);
             try {
-                values.add(field.get(object));
+                params.add(field.get(object));
             } catch (IllegalAccessException e) {
                 throw new DataTemplateException(e);
             }
         }
 
         try {
-            values.add(entityClassMetaData.getIdField().get(object));
+            params.add(entityClassMetaData.getIdField().get(object));
         } catch (IllegalAccessException e) {
             throw new DataTemplateException(e);
         }
 
-        dbExecutor.executeStatement(connection, entitySQLMetaData.getUpdateSql(), values);
+        dbExecutor.executeStatement(connection, entitySQLMetaData.getUpdateSql(), params);
     }
 
     private T createObject(ResultSet resultSet) throws ReflectiveOperationException, SQLException {
