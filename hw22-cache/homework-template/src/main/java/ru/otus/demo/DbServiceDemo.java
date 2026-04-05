@@ -3,11 +3,15 @@ package ru.otus.demo;
 import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.cachehw.MyCache;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
 import ru.otus.crm.dbmigrations.MigrationsExecutorFlyway;
+import ru.otus.crm.model.Address;
 import ru.otus.crm.model.Client;
+import ru.otus.crm.model.Phone;
+import ru.otus.crm.service.DbServiceClientCacheImpl;
 import ru.otus.crm.service.DbServiceClientImpl;
 
 public class DbServiceDemo {
@@ -25,28 +29,39 @@ public class DbServiceDemo {
 
         new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
 
-        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class);
+        var sessionFactory =
+                HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class);
 
         var transactionManager = new TransactionManagerHibernate(sessionFactory);
         ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
         ///
         var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
-        dbServiceClient.saveClient(new Client("dbServiceFirst"));
+        long t1 = System.currentTimeMillis();
+        var client = dbServiceClient.saveClient(new Client("dbServiceClient"));
 
-        var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
-        var clientSecondSelected = dbServiceClient
-                .getClient(clientSecond.getId())
-                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecond.getId()));
-        log.info("clientSecondSelected:{}", clientSecondSelected);
-        ///
-        dbServiceClient.saveClient(new Client(clientSecondSelected.getId(), "dbServiceSecondUpdated"));
-        var clientUpdated = dbServiceClient
-                .getClient(clientSecondSelected.getId())
-                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecondSelected.getId()));
-        log.info("clientUpdated:{}", clientUpdated);
+        for (int i = 0; i < 10; i++) {
+            var clientSecondSelected = dbServiceClient
+                    .getClient(client.getId())
+                    .orElseThrow(() -> new RuntimeException("Client not found, id:" + client.getId()));
+            log.info("clientSecondSelected:{}", clientSecondSelected);
+        }
 
-        log.info("All clients");
-        dbServiceClient.findAll().forEach(client -> log.info("client:{}", client));
+        long t2 = System.currentTimeMillis();
+        log.info("Total time: {}", t2 - t1);
+
+        var dbServiceClientCache = new DbServiceClientCacheImpl(transactionManager, clientTemplate, new MyCache<>());
+        t1 = System.currentTimeMillis();
+        var clientCache = dbServiceClientCache.saveClient(new Client("dbServiceClientCache"));
+
+        for (int i = 0; i < 10; i++) {
+            var clientSecondSelected = dbServiceClientCache
+                    .getClient(clientCache.getId())
+                    .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientCache.getId()));
+            log.info("clientSecondSelected:{}", clientSecondSelected);
+        }
+
+        t2 = System.currentTimeMillis();
+        log.info("Total time with cache: {}", t2 - t1);
     }
 }
