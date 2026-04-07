@@ -13,7 +13,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,10 +53,12 @@ public class Client implements Cloneable {
     public Client(Long id, String name, Address address, List<Phone> phones) {
         this.id = id;
         this.name = name;
-        this.address = new Address(address.getId(), address.getStreet(), this);
-        this.phones = phones.stream()
-                .map(p -> new Phone(p.getId(), p.getNumber(), this))
-                .toList();
+        this.address = address == null ? null : new Address(address.getId(), address.getStreet(), this);
+        this.phones = phones == null
+                ? null
+                : phones.stream()
+                        .map(p -> new Phone(p.getId(), p.getNumber(), this))
+                        .toList();
     }
 
     @Override
