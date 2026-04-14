@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        form { max-width: 300px; }
+        label { display: block; margin-bottom: 12px; }
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;
+        }
+        input[type="submit"] {
+            margin-top: 16px; padding: 10px 20px;
+            background-color: #4a90d9; color: white; border: none;
+            border-radius: 4px; cursor: pointer; width: 100%;
+        }
+        input[type="submit"]:hover { background-color: #357abd; }
+    </style>
+</head>
+
+<body>
+<h2>Вход для администратора</h2>
+<form action="/login" method="post">
+    <label>
+        Логин<br/>
+        <input type="text" name="login" placeholder="Введите логин">
+    </label>
+    <label>
+        Пароль<br/>
+        <input type="password" name="password" placeholder="Введите пароль">
+    </label>
+    <input type="submit" value="Войти">
+</form>
+<p><a href="/">На главную</a></p>
+</body>
+</html>
