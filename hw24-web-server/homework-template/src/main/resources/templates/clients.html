@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Клиенты</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 600px; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        form.create-form { margin-top: 30px; max-width: 400px; }
+        form.create-form input[type="text"] { padding: 8px; width: 250px; margin-bottom: 8px; display: block; }
+        form.create-form button {
+            padding: 8px 16px; background-color: #4a90d9; color: white;
+            border: none; border-radius: 4px; cursor: pointer;
+        }
+        form.create-form button:hover { background-color: #357abd; }
+        .api-section { margin-top: 40px; }
+        pre { background: #f8f8f8; padding: 12px; border: 1px solid #ddd; max-width: 600px; }
+    </style>
+</head>
+
+<body>
+<h3>Список клиентов</h3>
+<#if clients?has_content>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Адрес</th>
+            <th>Телефоны</th>
+        </tr>
+    </thead>
+    <tbody>
+    <#list clients as client>
+        <tr>
+            <td>${client.id}</td>
+            <td>${client.name}</td>
+            <td><#if client.address??>${client.address.street}<#else>—</#if></td>
+            <td>
+                <#if client.phones?has_content>
+                    <#list client.phones as phone>${phone.number}<#sep>, </#list>
+                <#else>—</#if>
+            </td>
+        </tr>
+    </#list>
+    </tbody>
+</table>
+<#else>
+<p>Клиентов нет</p>
+</#if>
+
+<h3>Добавить клиента</h3>
+<form class="create-form" action="/clients" method="post">
+    <input type="text" name="name" placeholder="Имя клиента" required>
+    <input type="text" name="address" placeholder="Адрес">
+    <input type="text" name="phones" placeholder="Телефоны (через запятую)">
+    <button type="submit">Создать</button>
+</form>
+
+<p style="margin-top:30px;"><a href="/">На главную</a></p>
+</body>
+</html>
