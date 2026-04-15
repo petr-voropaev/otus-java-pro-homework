@@ -1,7 +1,6 @@
 package ru.otus.server;
 
 import com.google.gson.Gson;
-import java.util.Arrays;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
@@ -13,7 +12,6 @@ import ru.otus.helpers.FileSystemHelper;
 import ru.otus.services.AdminAuthService;
 import ru.otus.services.TemplateProcessor;
 import ru.otus.servlet.AuthorizationFilter;
-import ru.otus.servlet.ClientsApiServlet;
 import ru.otus.servlet.ClientsServlet;
 import ru.otus.servlet.LoginServlet;
 
@@ -86,13 +84,9 @@ public class ClientWebServerImpl implements ClientWebServer {
                 new ServletHolder(new LoginServlet(templateProcessor, adminAuthService)), "/login");
         servletContextHandler.addServlet(
                 new ServletHolder(new ClientsServlet(templateProcessor, dbServiceClient)), "/clients");
-        servletContextHandler.addServlet(
-                new ServletHolder(new ClientsApiServlet(dbServiceClient, gson)), "/api/client/*");
 
-        String[] paths = {"/clients", "/api/client/*"};
         AuthorizationFilter authorizationFilter = new AuthorizationFilter();
-        Arrays.stream(paths)
-                .forEach(path -> servletContextHandler.addFilter(new FilterHolder(authorizationFilter), path, null));
+        servletContextHandler.addFilter(new FilterHolder(authorizationFilter), "/clients", null);
 
         return servletContextHandler;
     }

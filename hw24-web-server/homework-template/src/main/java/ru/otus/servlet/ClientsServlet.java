@@ -53,7 +53,6 @@ public class ClientsServlet extends HttpServlet {
             String phonesValue = request.getParameter(PARAM_PHONES);
             if (phonesValue != null && !phonesValue.isBlank()) {
                 List<Phone> phones = Arrays.stream(phonesValue.split(","))
-                        // .filter(phone -> !phone.isEmpty())
                         .map(phone -> new Phone(null, phone, client))
                         .toList();
                 client.setPhones(phones);

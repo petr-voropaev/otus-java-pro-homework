@@ -24,7 +24,6 @@ import ru.otus.services.TemplateProcessorImpl;
     Стартовая страница: http://localhost:8080
     Страница логина:    http://localhost:8080/login
     Страница клиентов:  http://localhost:8080/clients
-    REST:               http://localhost:8080/api/client
 
     Креды администратора: admin / admin
 */
