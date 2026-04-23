@@ -36,6 +36,11 @@ allprojects {
     def testcontainersBom = project.testcontainersBom
     def protobufBom = project.protobufBom
     def guava = project.guava
+    def sockjs = project.sockjs
+    def stomp = project.stomp
+    def bootstrap = project.bootstrap
+    def jsr305 = project.jsr305
+    def r2dbcPostgresql = project.r2dbcPostgresql
 
     apply plugin: 'io.spring.dependency-management'
     dependencyManagement {
@@ -46,6 +51,11 @@ allprojects {
                 mavenBom "com.google.protobuf:protobuf-bom:$protobufBom"
             }
             dependency "com.google.guava:guava:$guava"
+            dependency("org.webjars:sockjs-client:$sockjs")
+            dependency("org.webjars:stomp-websocket:$stomp")
+            dependency("org.webjars:bootstrap:$bootstrap")
+            dependency("com.google.code.findbugs:jsr305:$jsr305")
+            dependency("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresql")
         }
     }
 
