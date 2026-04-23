@@ -3,6 +3,7 @@ let stompClient = null;
 const chatLineElementId = "chatLine";
 const roomIdElementId = "roomId";
 const messageElementId = "message";
+const room1408Id = "1408";
 
 
 const setConnected = (connected) => {
@@ -39,6 +40,9 @@ const disconnect = () => {
 
 const sendMsg = () => {
     const roomId = document.getElementById(roomIdElementId).value;
+    if (roomId === room1408Id) {
+        return;
+    }
     const message = document.getElementById(messageElementId).value;
     stompClient.send(`/app/message.${roomId}`, {}, JSON.stringify({'messageStr': message}))
 }
