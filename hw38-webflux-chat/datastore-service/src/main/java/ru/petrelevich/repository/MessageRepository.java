@@ -8,6 +8,9 @@ import ru.petrelevich.domain.Message;
 
 public interface MessageRepository extends ReactiveCrudRepository<Message, Long> {
 
-    @Query("select * from message where room_id = :room_id order by id")
+    @Query("select * from message where room_id = :roomId order by id")
     Flux<Message> findByRoomId(@Param("roomId") String roomId);
+
+    @Query("select * from message where room_id <> :roomId order by id")
+    Flux<Message> findAllByRoomIdNot(@Param("roomId") String roomId);
 }
