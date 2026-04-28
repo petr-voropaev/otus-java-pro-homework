@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Клиенты</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 600px; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        form.create-form { margin-top: 30px; max-width: 400px; }
+        form.create-form input[type="text"] { padding: 8px; width: 250px; margin-bottom: 8px; display: block; }
+        form.create-form button {
+            padding: 8px 16px; background-color: #4a90d9; color: white;
+            border: none; border-radius: 4px; cursor: pointer;
+        }
+        form.create-form button:hover { background-color: #357abd; }
+        .api-section { margin-top: 40px; }
+        pre { background: #f8f8f8; padding: 12px; border: 1px solid #ddd; max-width: 600px; }
+    </style>
+</head>
+
+<body>
+<main class="page">
+    <section class="panel">
+        <h1>Список клиентов</h1>
+
+        <div th:if="${#lists.isEmpty(clients)}">
+            <p>Клиентов нет</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(clients)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Адрес</th>
+                <th>Телефоны</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="client : ${clients}">
+                <td th:text="${client.id}"></td>
+                <td th:text="${client.name}"></td>
+                <td th:text="${client.address.street}"></td>
+                <td>
+                    <span th:if="${#lists.isEmpty(client.phones)}"></span>
+                    <span th:unless="${#lists.isEmpty(client.phones)}">
+                        <span th:each="phone, stat : ${client.phones}">
+                            <span th:text="${phone.number}"></span><span th:if="${!stat.last}">, </span>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Добавить клиента</h2>
+        <form class="create-form" th:action="@{/clients}" th:object="${clientRequest}" method="post">
+            <input type="text" th:field="*{name}" placeholder="Имя клиента" required>
+            <input type="text" th:field="*{address}" placeholder="Адрес">
+            <input type="text" th:field="*{phones}" placeholder="Телефоны через запятую">
+            <button type="submit">Создать</button>
+        </form>
+
+        <p style="margin-top: 24px;">
+            <a th:href="@{/}">На главную</a>
+        </p>
+    </section>
+</main>
+</body>
+</html>
